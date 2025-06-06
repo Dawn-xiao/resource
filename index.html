@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <title>狼人杀互动游戏</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: 
+        linear-gradient(rgba(35,37,38,0.82), rgba(65,67,69,0.82)),
+        url('resource/background.jpg') center center/cover no-repeat;
+      color: #f5f6fa;
+      font-family: 'Segoe UI', 'Arial', sans-serif;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    body {
+      display: flex;
+      flex-direction: row;
+      width: 100vw;
+      height: 100vh;
+    }
+
+    .sidebar {
+      width: 200px;
+      background: rgba(20, 22, 34, 0.98);
+      padding: 28px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      border-top-right-radius: 24px;
+      border-bottom-right-radius: 24px;
+      box-shadow: 2px 0 18px 0 rgba(0,0,0,0.25);
+    }
+
+    .sidebar button {
+      padding: 14px 0;
+      background: linear-gradient(90deg, #232526 0%, #414345 100%);
+      border: none;
+      color: #fff;
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 18px;
+      font-weight: 500;
+      letter-spacing: 1px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+      transition: background 0.3s, transform 0.2s, box-shadow 0.2s;
+    }
+    .sidebar button:hover {
+      background: linear-gradient(90deg, #005bea 0%, #3a7bd5 100%);
+      transform: translateY(-2px) scale(1.04);
+      box-shadow: 0 4px 16px rgba(0,91,234,0.18);
+    }
+
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
+      padding: 0 24px;
+    }
+
+    .content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      height: 100%;
+      width: 100%;
+    }
+
+    video {
+      width: 66.6%;
+      max-width: 540px;
+      border-radius: 18px;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      opacity: 0;
+      box-shadow: 0 8px 32px 0 rgba(31,38,135,0.37);
+      border: 2px solid rgba(0,91,234,0.18);
+      background: rgba(44,62,80,0.18);
+      transition: opacity 0.5s;
+    }
+
+    #startBtn {
+      font-size: 22px;
+      padding: 14px 38px;
+      border-radius: 14px;
+      background: linear-gradient(90deg, #005bea 0%, #3a7bd5 100%);
+      color: white;
+      cursor: pointer;
+      z-index: 2;
+      position: relative;
+      margin-top: 18px;
+      font-weight: bold;
+      border: none;
+      box-shadow: 0 4px 16px rgba(0,91,234,0.18);
+      transition: background 0.3s, transform 0.2s, box-shadow 0.2s;
+    }
+    #startBtn:hover {
+      background: linear-gradient(90deg, #3a7bd5 0%, #005bea 100%);
+      transform: scale(1.05);
+      box-shadow: 0 8px 32px rgba(0,91,234,0.22);
+    }
+
+    .side-controls {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 18px;
+      margin-left: 32px;
+      background: rgba(34,40,49,0.92);
+      border-radius: 18px;
+      padding: 24px 18px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.18);
+    }
+
+    .left-buttons, .right-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      justify-content: center;
+    }
+
+    .circle-button, .rect-button {
+      border: none;
+      cursor: pointer;
+      font-size: 20px;
+      font-weight: 500;
+      transition: background 0.3s, transform 0.2s, box-shadow 0.2s;
+    }
+
+    .circle-button {
+      border-radius: 50%;
+      width: 48px;
+      height: 48px;
+      background: linear-gradient(135deg, #232526 0%, #414345 100%);
+      color: #fff;
+      box-shadow: 0 2px 8px rgba(0,91,234,0.10);
+      border: 2px solid #005bea;
+    }
+    .circle-button:hover {
+      background: linear-gradient(135deg, #005bea 0%, #3a7bd5 100%);
+      color: #fff;
+      transform: scale(1.12);
+      box-shadow: 0 4px 16px rgba(0,91,234,0.18);
+    }
+
+    .rect-button {
+      border-radius: 10px;
+      background: linear-gradient(90deg, #232526 0%, #414345 100%);
+      color: #fff;
+      padding: 12px 32px;
+      margin: 0 6px;
+      box-shadow: 0 2px 8px rgba(0,91,234,0.10);
+      border: 2px solid #3a7bd5;
+    }
+    .rect-button:hover {
+      background: linear-gradient(90deg, #005bea 0%, #3a7bd5 100%);
+      color: #fff;
+      transform: scale(1.06);
+      box-shadow: 0 4px 16px rgba(0,91,234,0.18);
+    }
+
+    .logo {
+      position: fixed;
+      top: 24px;
+      right: 32px;
+      width: 120px;
+      height: auto;
+      z-index: 100;
+      border-radius: 16px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.18);
+      background: rgba(34,40,49,0.18);
+      padding: 6px;
+    }
+  </style>
+</head>
+<body>
+  <img src="resource/theme.jpg" alt="logo" class="logo">
+  <div class="sidebar">
+    <button onclick="showPlayerInfo(1)">玩家1号</button>
+    <button onclick="showPlayerInfo(2)">玩家2号</button>
+    <button onclick="showPlayerInfo(3)">玩家3号</button>
+    <button onclick="showPlayerInfo(4)">玩家4号</button>
+    <button onclick="showPlayerInfo(5)">玩家5号</button>
+    <button onclick="showPlayerInfo(6)">玩家6号</button>
+  </div>
+
+  <div class="main">
+    <div class="content">
+      <video id="bgVideo" autoplay loop muted playsinline></video>
+      <video id="video1" autoplay playsinline></video>
+      <video id="video2" autoplay playsinline></video>
+      <button id="startBtn">开始游戏</button>
+    </div>
+
+    <div class="side-controls" id="controls" style="display:none;">
+      <div class="left-buttons">
+        <button class="circle-button" onclick="selectPlayer(1)">1</button>
+        <button class="circle-button" onclick="selectPlayer(2)">2</button>
+        <button class="circle-button" onclick="selectPlayer(3)">3</button>
+        <button class="circle-button" onclick="selectPlayer(4)">4</button>
+        <button class="circle-button" onclick="selectPlayer(5)">5</button>
+        <button class="circle-button" onclick="selectPlayer(6)">6</button>
+      </div>
+      <div class="right-buttons">
+        <button class="rect-button" onclick="confirmAction()">确认</button>
+        <button class="rect-button" onclick="cancelAction()">取消</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const video1 = document.getElementById('video1');
+    const video2 = document.getElementById('video2');
+    const startBtn = document.getElementById('startBtn');
+    const controls = document.getElementById('controls');
+
+    let players = [];
+    let phase = 'start';
+    let selectedPlayer = null;
+    let currentDeadThisRound = [];
+    let witchUsedHeal = false;
+    let witchUsedPoison = false;
+
+    let currentVideo = video1;
+    let nextVideo = video2;
+
+    function getVideoPath(index) {
+      return `resource/${index}.mp4`;
+    }
+
+    function switchVideos(src, loop = false, callback = null) {
+      nextVideo.src = getVideoPath(src);
+      nextVideo.loop = loop;
+      nextVideo.volume = 1;
+      nextVideo.onended = () => {
+        nextVideo.onended = null;
+        callback && callback();
+      };
+      nextVideo.load();
+      nextVideo.play().then(() => {
+        currentVideo.pause();
+        currentVideo.currentTime = 0;
+        currentVideo.style.opacity = 0;
+        nextVideo.style.opacity = 1;
+
+        const temp = currentVideo;
+        currentVideo = nextVideo;
+        nextVideo = temp;
+      });
+    }
+
+    function shuffleArray(arr) {
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    function assignRoles() {
+      const roles = shuffleArray(['预言家', '女巫', '狼人', '狼人', '平民', '平民']);
+      players = roles.map(role => ({ role, alive: true }));
+    }
+
+    function showPlayerInfo(index) {
+      const player = players[index - 1];
+      if (!player) return alert(`玩家${index}号：无`);
+      alert(`玩家${index}号：\n身份：${player.role}\n状态：${player.alive ? '存活' : '死亡'}`);
+    }
+
+    startBtn.onclick = () => {
+      if (phase === 'start') {
+        assignRoles();
+        startBtn.textContent = '玩家查看身份完毕';
+        switchVideos(31, true);
+        phase = 'viewing';
+      } else if (phase === 'viewing') {
+        startBtn.style.display = 'none';
+        controls.style.display = 'flex';
+        startFirstNight();
+      }
+    };
+
+    function startFirstNight() {
+      switchVideos(13, false, () => {
+        switchVideos(31, true);
+        phase = '狼人选择';
+      });
+    }
+
+    function selectPlayer(num) {
+      //if (!players[num - 1].alive) return;
+
+      if (phase === '狼人选择') {
+        players[num - 1].alive = false;
+        currentDeadThisRound = [num];
+        switchVideos(14, false, () => {
+          phase = '预言家选择';
+          switchVideos(31, true);
+        });
+      } else if (phase === '预言家选择') {
+        selectedPlayer = num;
+        switchVideos(15, false, () => {
+          const isGood = ['预言家', '女巫', '平民'].includes(players[num - 1].role);
+          switchVideos(isGood ? 29 : 30, false, () => {
+            startWitchPhase();
+          });
+        });
+      } else if (phase === '女巫毒杀' && !witchUsedPoison) {
+        players[num - 1].alive = false;
+        currentDeadThisRound.push(num);
+        witchUsedPoison = true;
+        switchVideos(19, false, () => checkNightOutcome());
+      } else if (phase === '投票结果') {
+        players[num - 1].alive = false;
+        switchVideos(25, false, () => {
+          switchVideos(num, false, () => {
+            switchVideos(31, true);
+            if (checkGameEnd()) {
+              switchVideos(28, false, () => switchVideos(32, true));
+            } else {
+              switchVideos(27, false, () => {
+                switchVideos(13, false, () => {
+                  switchVideos(31, true);
+                  phase = '狼人选择';
+                });
+              });
+            }
+          });
+        });
+      }
+    }
+
+    function startWitchPhase() {
+      phase = '女巫是否救人';
+      switchVideos(16, false, () => {
+        switchVideos(currentDeadThisRound[0] + 6, false, () => {
+          switchVideos(17, false, () => {
+            if (!witchUsedHeal && currentDeadThisRound.length > 0) {
+              phase = '女巫救人';
+              switchVideos(31, true);
+            } else {
+              switchVideos(18, false, () => {
+                phase = '女巫毒杀';
+                switchVideos(31, true);
+              });
+            }
+          });
+        });
+      });
+    }
+
+    function confirmAction() {
+      if (phase === '女巫救人') {
+        const revive = currentDeadThisRound[0];
+        players[revive - 1].alive = true;
+        witchUsedHeal = true;
+        currentDeadThisRound = [];
+        switchVideos(18, false, () => {
+          phase = '女巫毒杀';
+          switchVideos(31, true);
+        });
+      } else if (phase === '发言') {
+        switchVideos(23, false, () => {
+          phase = '投票结果';
+          switchVideos(31, true);
+        });
+      }
+    }
+
+    function cancelAction() {
+      if (phase === '女巫救人') {
+        switchVideos(18, false, () => {
+          phase = '女巫毒杀';
+          switchVideos(31, true);
+        });
+      } else if (phase === '女巫毒杀') {
+        switchVideos(19, false, () => checkNightOutcome());
+      }
+    }
+
+    function checkNightOutcome() {
+      if (currentDeadThisRound.length > 0) {
+        switchVideos(20, false, () => playNextDeathVideo(0));
+      } else {
+        switchVideos(26, false, () => startNextDay());
+      }
+    }
+
+    function playNextDeathVideo(index) {
+      if (index >= currentDeadThisRound.length) {
+        startNextDay();
+        return;
+      }
+      switchVideos(currentDeadThisRound[index], false, () => {
+        playNextDeathVideo(index + 1);
+      });
+    }
+
+    function startNextDay() {
+      if (checkGameEnd()) {
+        switchVideos(28, false, () => switchVideos(32, true));
+      } else {
+        switchVideos(27, false, () => {
+          phase = '发言';
+          switchVideos(22, false, () => switchVideos(31, true));
+        });
+      }
+    }
+
+    function checkGameEnd() {
+      const alive = players.filter(p => p.alive);
+      const wolves = alive.filter(p => p.role === '狼人');
+      const others = alive.filter(p => p.role !== '狼人');
+      return wolves.length === 0 || wolves.length >= others.length;
+    }
+
+    // 页面加载时循环播放32号视频作为背景
+    window.onload = function() {
+      switchVideos(32, true);
+    };
+  </script>
+</body>
+</html>
